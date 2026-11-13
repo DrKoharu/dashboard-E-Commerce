@@ -5,7 +5,7 @@ Dashboard Streamlit sederhana untuk melihat metode pembayaran dan kategori produ
 ## Setup environment
 
 ```lua
-conda create --name main-ds python=3.9
+conda create
 conda activate main-ds
 pip install numpy pandas matplotlib seaborn streamlit
 ```
