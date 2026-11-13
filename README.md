@@ -1,13 +1,14 @@
-# Dicoding Collection Dashboard ✨
+# Dashboard E-Commerce Olist✨
 
 Dashboard Streamlit sederhana untuk melihat metode pembayaran dan kategori produk pada dataset E-Commerce Olist.
 
 ## Setup environment
 
 ```lua
-conda create
-conda activate main-ds
-pip install numpy pandas matplotlib seaborn streamlit
+conda create --name olist-dashboard python=3.12
+conda activate olist-dashboard
+
+pip install -r requirements.txt
 ```
 
 ## Run Streamlit app
