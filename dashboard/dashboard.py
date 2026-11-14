@@ -351,17 +351,17 @@ top_revenue_category = category_summary["revenue"].idxmax()
 
 metric_columns = st.columns(4)
 with metric_columns[0]:
-    st.metric("Total transaksi pembayaran", fmt_num(payment_total))
-    st.caption(f"Total nilai: {fmt_rs(payment_value_total, 0)}")
+    st.metric("Jumlah catatan pembayaran", fmt_num(payment_total))
+    st.caption(f"Total nilai pembayaran: {fmt_rs(payment_value_total, 0)}")
 with metric_columns[1]:
     st.metric("Metode paling banyak dipakai", method_name(top_method))
-    st.caption(f"{fmt_num(payment_share.loc[top_method], 1)}% dari transaksi terfilter")
+    st.caption(f"{fmt_num(payment_share.loc[top_method], 1)}% dari catatan pembayaran terfilter")
 with metric_columns[2]:
     st.metric("Kategori terlaris (volume)", category_name(top_volume_category))
     st.caption(f"{fmt_num(category_summary.loc[top_volume_category, 'jumlah'])} item")
 with metric_columns[3]:
-    st.metric("Kategori revenue tertinggi", category_name(top_revenue_category))
-    st.caption(f"Revenue: {fmt_rs(category_summary.loc[top_revenue_category, 'revenue'], 0)}")
+    st.metric("Kategori dengan total nilai penjualan produk tertinggi", category_name(top_revenue_category))
+    st.caption(f"Total nilai penjualan produk: {fmt_rs(category_summary.loc[top_revenue_category, 'revenue'], 0)}")
 
 st.caption(
     "Tiga baris `not_defined` dengan nilai nol dikeluarkan dari analisis pembayaran. "
@@ -383,8 +383,8 @@ with tab_payment:
     with left:
         fig = barh_figure(
             payment_share_display,
-            "Proporsi transaksi menurut metode pembayaran",
-            "Proporsi transaksi (%)",
+            "Proporsi catatan pembayaran menurut metode pembayaran",
+            "Proporsi catatan pembayaran (%)",
             lambda value: f"{fmt_num(value, 1)}%",
             top_method_label,
         )
@@ -393,7 +393,7 @@ with tab_payment:
         second_share = payment_share.get(second_method, 0.0)
         insight(
             f"{method_name(top_method)} mencakup {fmt_num(payment_share.loc[top_method], 1)}% "
-            f"dari {fmt_num(payment_total)} baris pembayaran; metode berikutnya, "
+            f"dari {fmt_num(payment_total)} catatan pembayaran; metode berikutnya, "
             f"{method_name(second_method)}, berada di {fmt_num(second_share, 1)}%. "
             "Jaga metode utama tetap mudah ditemukan di tahap pembayaran dan pertahankan pilihan alternatif."
         )
@@ -439,7 +439,7 @@ with tab_payment:
                         )
             ax.set_xticks(positions, [method_name(method) for method in methods])
             ax.set_ylim(0, max(100, float(annual_pct.max().max()) * 1.18))
-            ax.set_ylabel("Proporsi transaksi (%)")
+            ax.set_ylabel("Proporsi catatan pembayaran (%)")
             ax.set_xlabel("Metode pembayaran")
             ax.set_title("Porsi per metode dan tahun dalam rentang terpilih", loc="left", fontsize=12, fontweight="bold", pad=14)
             ax.grid(axis="y", color="#E5E7EB", linewidth=0.7)
@@ -462,7 +462,7 @@ with tab_payment:
                 f"Dari {first_year} ke {last_year}, perubahan terbesar terjadi pada "
                 f"{method_name(largest_method)} sebesar {fmt_num(largest_change, 1)} poin persentase; "
                 f"{shift_summary} karena batasnya 3 poin persentase. Perbandingan memakai proporsi "
-                "agar adil meskipun jumlah transaksi per tahun berbeda."
+                "agar adil meskipun jumlah catatan pembayaran per tahun berbeda."
             )
             relative_growth = []
             for method in annual_pct.columns:
@@ -503,7 +503,7 @@ with tab_payment:
                 )
             ax.set_xticks(range(len(monthly_index)), [MONTH_LABELS[month.month - 1] for month in monthly_index])
             ax.set_ylim(bottom=0)
-            ax.set_ylabel("Proporsi transaksi (%)")
+            ax.set_ylabel("Proporsi catatan pembayaran (%)")
             ax.set_xlabel("Bulan")
             ax.set_title("Perubahan porsi metode pembayaran per bulan", loc="left", fontsize=12, fontweight="bold", pad=14)
             ax.grid(axis="y", color="#E5E7EB", linewidth=0.7)
@@ -522,16 +522,16 @@ with tab_payment:
                     f"perubahan terbesar terjadi pada {method_name(largest_method)} sebesar "
                     f"{fmt_num(month_changes.loc[largest_method], 1)} poin persentase. "
                     "Grafik memakai proporsi agar perubahan komposisi dapat dibandingkan meskipun "
-                    "jumlah transaksi per bulan berbeda."
+                    "jumlah catatan pembayaran per bulan berbeda."
                 )
             else:
                 trend_text = (
-                    "Rentang ini hanya memiliki satu bulan dengan transaksi. Grafik memakai proporsi "
+                    "Rentang ini hanya memiliki satu bulan dengan catatan pembayaran. Grafik memakai proporsi "
                     "agar komposisi metode tetap dapat dibaca tanpa membandingkan jumlah mentah."
                 )
             insight(trend_text)
 
-    with st.expander("Lihat ringkasan transaksi per metode"):
+    with st.expander("Lihat ringkasan catatan pembayaran per metode"):
         payment_summary = (
             payment_filtered.groupby("payment_type")
             .agg(
@@ -546,10 +546,10 @@ with tab_payment:
         payment_summary = payment_summary.rename(
             columns={
                 "payment_type": "Metode pembayaran",
-                "jumlah_transaksi": "Jumlah transaksi",
-                "persentase_transaksi": "Transaksi (%)",
-                "total_nilai": "Total nilai (R$)",
-                "rata_rata_nilai": "Rata-rata nilai (R$)",
+                "jumlah_transaksi": "Jumlah catatan pembayaran",
+                "persentase_transaksi": "Proporsi catatan pembayaran (%)",
+                "total_nilai": "Total nilai pembayaran (R$)",
+                "rata_rata_nilai": "Rata-rata nilai pembayaran (R$)",
             }
         )
         show_dataframe(
@@ -557,17 +557,17 @@ with tab_payment:
             number_columns(
                 payment_summary,
                 {
-                    "Jumlah transaksi": "Jumlah transaksi",
-                    "Transaksi (%)": "Transaksi (%)",
-                    "Total nilai (R$)": "Total nilai (R$)",
-                    "Rata-rata nilai (R$)": "Rata-rata nilai (R$)",
+                    "Jumlah catatan pembayaran": "Jumlah catatan pembayaran",
+                    "Proporsi catatan pembayaran (%)": "Proporsi catatan pembayaran (%)",
+                    "Total nilai pembayaran (R$)": "Total nilai pembayaran (R$)",
+                    "Rata-rata nilai pembayaran (R$)": "Rata-rata nilai pembayaran (R$)",
                 },
             ),
         )
-        highest_average = payment_summary.iloc[payment_summary["Rata-rata nilai (R$)"].argmax()]
+        highest_average = payment_summary.iloc[payment_summary["Rata-rata nilai pembayaran (R$)"].argmax()]
         insight(
-            f"{highest_average['Metode pembayaran']} memiliki rata-rata nilai per baris tertinggi, "
-            f"{fmt_rs(highest_average['Rata-rata nilai (R$)'])}; bandingkan nilai ini dengan porsinya "
+            f"{highest_average['Metode pembayaran']} memiliki rata-rata nilai pembayaran per catatan pembayaran tertinggi, "
+            f"{fmt_rs(highest_average['Rata-rata nilai pembayaran (R$)'])}; bandingkan nilai ini dengan porsinya "
             "sebelum menentukan insentif khusus per metode."
         )
 
@@ -609,18 +609,18 @@ with tab_category:
         render_figure(
             barh_figure(
                 revenue_series,
-                f"{top_n} kategori dengan total revenue tertinggi",
-                "Total revenue (R$)",
+                f"{top_n} kategori dengan total nilai penjualan produk tertinggi",
+                "Total nilai penjualan produk (R$)",
                 lambda value: fmt_rs(value, 0),
                 revenue_highlight,
             )
         )
         revenue_first = top_by_revenue.iloc[0]
         insight(
-            f"{category_name(top_by_revenue.index[0])} menghasilkan revenue tertinggi, "
+            f"{category_name(top_by_revenue.index[0])} menghasilkan total nilai penjualan produk tertinggi, "
             f"{fmt_rs(revenue_first['revenue'], 0)} atau "
-            f"{fmt_num(revenue_first['pangsa_revenue'], 1)}% dari revenue kategori pada rentang ini. "
-            "Peringkat revenue membantu membedakan kategori beromzet besar dari kategori beritem banyak."
+            f"{fmt_num(revenue_first['pangsa_revenue'], 1)}% dari total nilai penjualan produk kategori pada rentang ini. "
+            "Peringkat total nilai penjualan produk membantu membedakan kategori beromzet besar dari kategori beritem banyak."
         )
 
     avg_price_top_revenue = top_by_revenue.sort_values("rata_harga", ascending=False)
@@ -634,7 +634,7 @@ with tab_category:
         render_figure(
             barh_figure(
                 avg_price_series,
-                "Rata-rata harga pada kategori dengan revenue tertinggi",
+                "Rata-rata harga pada kategori dengan total nilai penjualan produk tertinggi",
                 "Rata-rata harga per item (R$)",
                 lambda value: fmt_rs(value, 0),
                 category_name(average_price_leader),
@@ -643,10 +643,10 @@ with tab_category:
         volume_leader_price = category_summary.loc[top_volume_category, "rata_harga"]
         insight(
             f"{category_name(average_price_leader)} memiliki rata-rata harga tertinggi di antara "
-            f"{top_n} kategori revenue teratas ({fmt_rs(category_summary.loc[average_price_leader, 'rata_harga'], 0)}), "
+            f"{top_n} kategori dengan total nilai penjualan produk teratas ({fmt_rs(category_summary.loc[average_price_leader, 'rata_harga'], 0)}), "
             f"sedangkan kategori dengan volume tertinggi, {category_name(top_volume_category)}, rata-rata "
             f"{fmt_rs(volume_leader_price, 0)} per item. Perbedaan harga ini membantu menjelaskan "
-            "mengapa peringkat volume dan revenue tidak selalu sama."
+            "mengapa peringkat volume dan total nilai penjualan produk tidak selalu sama."
         )
     with price_right:
         st.markdown("#### Rincian seluruh kategori")
@@ -654,10 +654,10 @@ with tab_category:
         category_table.index = [category_name(name) for name in category_table.index]
         category_table = category_table.reset_index(names="Kategori").rename(
             columns={
-                "jumlah": "Item terjual",
-                "revenue": "Revenue (R$)",
+                "jumlah": "Jumlah item terjual",
+                "revenue": "Total nilai penjualan produk (R$)",
                 "rata_harga": "Rata-rata harga (R$)",
-                "pangsa_revenue": "Pangsa revenue (%)",
+                "pangsa_revenue": "Proporsi total nilai penjualan produk (%)",
             }
         )
         show_dataframe(
@@ -665,10 +665,10 @@ with tab_category:
             number_columns(
                 category_table,
                 {
-                    "Item terjual": "Item terjual",
-                    "Revenue (R$)": "Revenue (R$)",
+                    "Jumlah item terjual": "Jumlah item terjual",
+                    "Total nilai penjualan produk (R$)": "Total nilai penjualan produk (R$)",
                     "Rata-rata harga (R$)": "Rata-rata harga (R$)",
-                    "Pangsa revenue (%)": "Pangsa revenue (%)",
+                    "Proporsi total nilai penjualan produk (%)": "Proporsi total nilai penjualan produk (%)",
                 },
             ),
             height=420,
@@ -676,7 +676,7 @@ with tab_category:
         total_items = int(category_summary["jumlah"].sum())
         insight(
             f"Tabel memuat {fmt_num(len(category_summary))} kategori dan {fmt_num(total_items)} item. "
-            f"{category_name(top_revenue_category)} menyumbang pangsa revenue terbesar, "
+            f"{category_name(top_revenue_category)} menyumbang proporsi total nilai penjualan produk terbesar, "
             f"{fmt_num(category_summary.loc[top_revenue_category, 'pangsa_revenue'], 1)}%; gunakan "
             "pangsa ini bersama volume untuk menyusun prioritas kategori."
         )
@@ -689,7 +689,7 @@ with tab_advanced:
     else:
         credit_card = payment_filtered.loc[payment_filtered["payment_type"].eq("credit_card")].copy()
         if credit_card.empty:
-            st.info("Tidak ada transaksi Credit Card pada rentang tanggal pembayaran yang dipilih.")
+            st.info("Tidak ada catatan pembayaran Credit Card pada rentang tanggal pembayaran yang dipilih.")
         else:
             credit_card["kelompok_cicilan"] = pd.cut(
                 credit_card["payment_installments"],
@@ -724,7 +724,7 @@ with tab_advanced:
                     positions - width / 2,
                     installment_summary["persentase_transaksi"],
                     width,
-                    label="% transaksi",
+                    label="% catatan pembayaran",
                     color=ACCENT,
                 )
                 bars_value = ax.bar(
@@ -747,9 +747,9 @@ with tab_advanced:
                         )
                 ax.set_xticks(positions, installment_summary["Kelompok cicilan"], rotation=12, ha="right")
                 ax.set_ylim(0, max(100, float(installment_summary[["persentase_transaksi", "persentase_nilai"]].to_numpy().max()) * 1.2))
-                ax.set_ylabel("Porsi dari transaksi/nilai kartu kredit (%)")
+                ax.set_ylabel("Porsi dari catatan pembayaran/nilai pembayaran kartu kredit (%)")
                 ax.set_xlabel("Kelompok cicilan")
-                ax.set_title("Porsi jumlah transaksi dan nilai menurut cicilan", loc="left", fontsize=12, fontweight="bold", pad=14)
+                ax.set_title("Porsi jumlah catatan pembayaran dan nilai pembayaran menurut cicilan", loc="left", fontsize=12, fontweight="bold", pad=14)
                 ax.grid(axis="y", color="#E5E7EB", linewidth=0.7)
                 ax.set_axisbelow(True)
                 ax.legend(frameon=False)
@@ -761,18 +761,18 @@ with tab_advanced:
                 ].iloc[0]
                 insight(
                     f"Cicilan menengah (7–12x) mencakup {fmt_num(medium['persentase_transaksi'], 1)}% "
-                    f"transaksi tetapi {fmt_num(medium['persentase_nilai'], 1)}% nilai Credit Card. "
+                    f"catatan pembayaran tetapi {fmt_num(medium['persentase_nilai'], 1)}% nilai pembayaran Credit Card. "
                     "Penawaran cicilan menengah saat checkout dapat mendukung pembelian bernilai lebih tinggi."
                 )
             with installment_right:
                 st.markdown("#### Ringkasan kelompok cicilan")
                 installment_table = installment_summary.rename(
                     columns={
-                        "transaksi": "Jumlah transaksi",
-                        "rata_rata_nilai": "Rata-rata nilai (R$)",
-                        "total_nilai": "Total nilai (R$)",
-                        "persentase_transaksi": "Transaksi (%)",
-                        "persentase_nilai": "Nilai (%)",
+                        "transaksi": "Jumlah catatan pembayaran",
+                        "rata_rata_nilai": "Rata-rata nilai pembayaran (R$)",
+                        "total_nilai": "Total nilai pembayaran (R$)",
+                        "persentase_transaksi": "Proporsi catatan pembayaran (%)",
+                        "persentase_nilai": "Proporsi total nilai pembayaran (%)",
                     }
                 )
                 show_dataframe(
@@ -780,19 +780,19 @@ with tab_advanced:
                     number_columns(
                         installment_table,
                         {
-                            "Jumlah transaksi": "Jumlah transaksi",
-                            "Rata-rata nilai (R$)": "Rata-rata nilai (R$)",
-                            "Total nilai (R$)": "Total nilai (R$)",
-                            "Transaksi (%)": "Transaksi (%)",
-                            "Nilai (%)": "Nilai (%)",
+                            "Jumlah catatan pembayaran": "Jumlah catatan pembayaran",
+                            "Rata-rata nilai pembayaran (R$)": "Rata-rata nilai pembayaran (R$)",
+                            "Total nilai pembayaran (R$)": "Total nilai pembayaran (R$)",
+                            "Proporsi catatan pembayaran (%)": "Proporsi catatan pembayaran (%)",
+                            "Proporsi total nilai pembayaran (%)": "Proporsi total nilai pembayaran (%)",
                         },
                     ),
                 )
                 largest_mean = installment_summary.loc[installment_summary["rata_rata_nilai"].idxmax()]
                 insight(
-                    f"Rata-rata nilai tertinggi ada pada {largest_mean['Kelompok cicilan']}, "
+                    f"Rata-rata nilai pembayaran tertinggi ada pada {largest_mean['Kelompok cicilan']}, "
                     f"sebesar {fmt_rs(largest_mean['rata_rata_nilai'])}; bandingkan dengan porsinya "
-                    "untuk menilai kontribusi kelompok cicilan terhadap transaksi bernilai besar."
+                    "untuk menilai kontribusi kelompok cicilan terhadap catatan pembayaran bernilai besar."
                 )
 
     st.divider()
@@ -866,8 +866,8 @@ with tab_advanced:
         insight(
             f"Median pembatas kuadran adalah {fmt_num(median_volume)} item dan "
             f"{fmt_rs(median_price, 1)} per item. Segmen {leading_segment} menyumbang "
-            f"{fmt_num(leading_share, 1)}% revenue dari {fmt_num(top_n)} kategori terpilih; "
-            "ukuran gelembung menunjukkan revenue relatif tiap kategori."
+            f"{fmt_num(leading_share, 1)}% total nilai penjualan produk dari {fmt_num(top_n)} kategori terpilih; "
+            "ukuran gelembung menunjukkan total nilai penjualan produk relatif tiap kategori."
         )
     with quadrant_right:
         st.markdown("#### Kategori dan strategi per segmen")
@@ -875,9 +875,9 @@ with tab_advanced:
         quadrant_table.index = [category_name(name) for name in quadrant_table.index]
         quadrant_table = quadrant_table.reset_index(names="Kategori").rename(
             columns={
-                "jumlah": "Item terjual",
+                "jumlah": "Jumlah item terjual",
                 "rata_harga": "Rata-rata harga (R$)",
-                "revenue": "Revenue (R$)",
+                "revenue": "Total nilai penjualan produk (R$)",
                 "segmen": "Segmen",
             }
         )
@@ -887,9 +887,9 @@ with tab_advanced:
             number_columns(
                 quadrant_table,
                 {
-                    "Item terjual": "Item terjual",
+                    "Jumlah item terjual": "Jumlah item terjual",
                     "Rata-rata harga (R$)": "Rata-rata harga (R$)",
-                    "Revenue (R$)": "Revenue (R$)",
+                    "Total nilai penjualan produk (R$)": "Total nilai penjualan produk (R$)",
                 },
             ),
             height=420,
@@ -908,8 +908,9 @@ with tab_advanced:
 with tab_conclusion:
     st.subheader("Kesimpulan analisis notebook")
     st.caption(
-        "Ringkasan berikut berasal dari analisis notebook dengan periode pembayaran 2017–2018 "
-        "dan kategori produk 2018. Isinya statis dan tidak berubah mengikuti filter dashboard."
+        "Ringkasan berikut berasal dari analisis notebook dengan periode pembayaran 1 Januari 2017 hingga 17 Oktober 2018 "
+        "dan kategori produk 1 Januari hingga 3 September 2018. Isinya statis dan tidak berubah "
+        "mengikuti filter dashboard."
     )
     st.markdown(
         """
@@ -920,7 +921,7 @@ with tab_conclusion:
 
         **Kategori produk**
 
-        Health Beauty menjadi kategori terlaris dari sisi volume dan revenue. Bed Bath Table menyamai volume penjualannya, tetapi revenuenya lebih rendah karena rata-rata harga lebih rendah. Watches Gifts berada pada posisi premium dengan rata-rata harga tertinggi.
+        Health Beauty menjadi kategori terlaris dari sisi volume dan total nilai penjualan produk. Bed Bath Table menyamai volume penjualannya, tetapi total nilai penjualan produknya lebih rendah karena rata-rata harga lebih rendah. Watches Gifts berada pada posisi premium dengan rata-rata harga tertinggi.
 
         **Rekomendasi**
 
