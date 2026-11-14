@@ -4,7 +4,7 @@ Dashboard Streamlit sederhana untuk melihat metode pembayaran dan kategori produ
 
 ## Setup environment
 
-```lua
+```bash
 conda create --name olist-dashboard python=3.12
 conda activate olist-dashboard
 
